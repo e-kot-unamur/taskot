@@ -2,15 +2,15 @@
 
 > « Tandis qu'ils saccageaient le troupeau, le berger appelait au secours les villageois ; mais ceux-ci, s’imaginant qu’il plaisantait comme d’habitude, se soucièrent peu de lui. »
 >
-> &mdash; L'Enfant qui criait au loup, Ésope
+> — L'Enfant qui criait au loup, Ésope
 >
 > *Cette fois-ci, je ne plaisante plus. Faites vos tâches.*
 
-TasKot est une application qui, tous les lundi à 08h30, envoie à tous les membres d'une colocation, par e-mail, un rappel de la tâche ménagère qu'il doit faire.
+TasKot est une application qui, tous les lundis à 08h30, envoie à tous les membres d'une colocation, par e-mail, un rappel de la tâche ménagère qu'il doit faire.
 
 ## Démarrage
 
-L'application nécessite des variables d'environnement pour configurer l'envoi d'e-mail, les tâches à réaliser, ainsi que les membres de la colocation.
+L'application nécessite des variables d'environnement pour configurer l'envoi d'e-mail, et définir les tâches à réaliser ainsi que les membres de la colocation.
 
 Prenons un exemple : Alice, Bob et Claire vivent à trois. Ils définissent trois tâches à accomplir chaque semaine : la vaisselle, la lessive et le nettoyage du sol.
 
