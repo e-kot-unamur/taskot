@@ -71,8 +71,8 @@ pub fn prefixed_vars(prefix: &str) -> Vec<String> {
 
 /// Returns the number of whole weeks elapsed since Mon, 28 Dec 1969 08:30:00.
 pub fn week_number<Tz: TimeZone>(now: DateTime<Tz>) -> i64 {
-    // Epoch time starts actually starts on a Thursday.
-    // Therefore we add 3 days to our timestamp.
+    // Epoch time actually starts on Thu, 1 Jan 1970 00:00:00.
+    // Therefore, we first add 3 days to our timestamp.
     (now + Duration::days(3) - Duration::hours(8) - Duration::minutes(30)).timestamp()
         / Duration::weeks(1).num_seconds()
 }
@@ -82,7 +82,7 @@ pub fn until_monday_08h30<Tz: TimeZone>(now: DateTime<Tz>) -> Duration {
     let today_08h30 = now.date().and_hms(8, 30, 0);
 
     let days_to_wait = if today_08h30.weekday() == Weekday::Mon {
-        if now <= today_08h30 {
+        if now < today_08h30 {
             Duration::zero()
         } else {
             Duration::weeks(1)
@@ -263,7 +263,7 @@ mod tests {
     fn until_monday_08h30_works_on_mondays_at_08h30() {
         let now = DateTime::parse_from_rfc2822("Mon, 21 Feb 2022 08:30:00 GMT").unwrap().with_timezone(&Utc);
         let duration = until_monday_08h30(now);
-        let expected = Duration::zero();
+        let expected = Duration::weeks(1);
         assert_eq!(duration, expected);
     }
 
