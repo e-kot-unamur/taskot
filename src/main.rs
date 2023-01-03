@@ -15,13 +15,13 @@ async fn main() {
         let figment = rocket::Config::figment()
             .merge(("address", "0.0.0.0"))
             .merge(("port", 8000))
-            .merge(("log_level", "critical"))
+            .merge(("log_level", "off"))
             .merge(("secret_key", std::env::var("SECRET_KEY").expect("SECRET_KEY is not defined.")));
         let config = Config::from(figment);
 
         // Launch the web server
         let _rocket = rocket::custom(&config)
-        .mount("/", routes![tasks])
+        .mount("/", routes![index])
         .launch()
         .await;
     }); 
@@ -94,7 +94,7 @@ fn generate_email_body(person: &Person, task: &Task) -> String {
 
 // Route to get the tasks of every person (on the web server started in the main function)
 #[get("/")]
-fn tasks() -> String {
+fn index() -> String {
     // Tasks and people
     let tasks = Task::from_vars(prefixed_vars("TASK"));
     assert_ne!(tasks.len(), 0, "TASK_0 is not defined.");
