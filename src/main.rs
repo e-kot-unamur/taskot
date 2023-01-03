@@ -3,17 +3,27 @@ use taskot::*;
 
 use tokio;
 #[macro_use] extern crate rocket;
+use rocket::config::Config;
 
 #[rocket::main]
 async fn main() {
 
     // Run web server in a separate async task
     tokio::spawn(async {
-        let _rocket = rocket::build()
+
+        // Define the web server's configuration
+        let figment = rocket::Config::figment()
+            .merge(("address", "0.0.0.0"))
+            .merge(("log_level", "off"))
+            .merge(("secret_key", std::env::var("SECRET_KEY").expect("SECRET_KEY is not defined.")));
+        let config = Config::from(figment);
+
+        // Launch the web server
+        let _rocket = rocket::custom(&config)
         .mount("/", routes![tasks])
         .launch()
         .await;
-    });
+    }); 
 
     // Email settings
     let email_host = std::env::var("EMAIL_HOST").expect("EMAIL_HOST is not defined.");
