@@ -15,7 +15,7 @@ async fn main() {
         let figment = rocket::Config::figment()
             .merge(("address", "0.0.0.0"))
             .merge(("port", 8000))
-            //.merge(("log_level", "off"))
+            .merge(("log_level", "critical"))
             .merge(("secret_key", std::env::var("SECRET_KEY").expect("SECRET_KEY is not defined.")));
         let config = Config::from(figment);
 
@@ -93,7 +93,7 @@ fn generate_email_body(person: &Person, task: &Task) -> String {
 }
 
 // Route to get the tasks of every person (on the web server started in the main function)
-#[get("/tasks")]
+#[get("/")]
 fn tasks() -> String {
     // Tasks and people
     let tasks = Task::from_vars(prefixed_vars("TASK"));
