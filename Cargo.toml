@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 chrono = "0.4"
 lettre = "0.10.0-rc.6"
+rocket = { version = "0.5.0-rc.2", features = ["secrets"] }
