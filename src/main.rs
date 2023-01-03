@@ -14,6 +14,7 @@ async fn main() {
         // Define the web server's configuration
         let figment = rocket::Config::figment()
             .merge(("address", "0.0.0.0"))
+            .merge(("port", 8000))
             .merge(("log_level", "off"))
             .merge(("secret_key", std::env::var("SECRET_KEY").expect("SECRET_KEY is not defined.")));
         let config = Config::from(figment);
