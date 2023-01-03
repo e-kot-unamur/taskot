@@ -1,7 +1,20 @@
 use chrono::prelude::*;
 use taskot::*;
 
-fn main() {
+use tokio;
+#[macro_use] extern crate rocket;
+
+#[rocket::main]
+async fn main() {
+
+    // Run web server in a separate async task
+    tokio::spawn(async {
+        let _rocket = rocket::build()
+        .mount("/", routes![tasks])
+        .launch()
+        .await;
+    });
+
     // Email settings
     let email_host = std::env::var("EMAIL_HOST").expect("EMAIL_HOST is not defined.");
     let email_username = std::env::var("EMAIL_HOST_USERNAME").expect("EMAIL_HOST_USERNAME is not defined.");
@@ -66,4 +79,23 @@ fn generate_email_body(person: &Person, task: &Task) -> String {
         TasKot v0.1.0",
         person.name, task.name,
     )
+}
+
+// Route to get the tasks of every person (on the web server started in the main function)
+#[get("/tasks")]
+fn tasks() -> String {
+    // Tasks and people
+    let tasks = Task::from_vars(prefixed_vars("TASK"));
+    assert_ne!(tasks.len(), 0, "TASK_0 is not defined.");
+
+    let people = Person::from_vars(prefixed_vars("PERSON"));
+    assert_ne!(people.len(), 0, "PERSON_0 is not defined.");
+
+    // String with tasks and people
+    let mut printing = String::new();
+    for (person, task) in people.iter().zip(&tasks) {
+        printing.push_str(format!("{}: {}\n", person.name, task.name).to_owned().as_str());
+    }
+
+    printing
 }
