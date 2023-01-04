@@ -119,7 +119,7 @@ async fn index(State(tasks): State<Arc<Mutex<Vec<Task>>>>) -> Html<String> {
     for (person, task) in people.iter().zip(tasks.lock().unwrap().iter()) {
         printing.push_str(format!("<li>{}: {}</li>\n", person.name, task.name).to_owned().as_str());
     }
-    printing.push_str("</ul>\n<br>\n<form action='http://taskot.e-kot.be/rotate'><input type='submit' value='Tourner la roue' /></form>");
+    printing.push_str("</ul>\n<br>\n<form action='https://taskot.e-kot.be/rotate'><input type='submit' value='Tourner la roue' /></form>");
 
     Html(printing)
 }
