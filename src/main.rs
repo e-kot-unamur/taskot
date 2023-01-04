@@ -1,30 +1,27 @@
-use chrono::prelude::*;
 use taskot::*;
-
+use chrono::prelude::*;
+use std::{
+    net::SocketAddr,
+    sync::{Arc, Mutex}
+};
 use tokio;
-#[macro_use] extern crate rocket;
-use rocket::config::Config;
+use axum::{
+    routing::get,
+    response::Redirect,
+    Router,
+    extract::State
+};
 
-#[rocket::main]
+#[tokio::main]
 async fn main() {
 
+    // Create a new task list, shared between all threads
+    let tasks = Arc::new(Mutex::new(Task::from_vars(prefixed_vars("TASK"))));
+    println!("tasks = {:?}", tasks);
+    assert_ne!(tasks.lock().unwrap().len(), 0, "TASK_0 is not defined.");
+
     // Run web server in a separate async task
-    tokio::spawn(async {
-
-        // Define the web server's configuration
-        let figment = rocket::Config::figment()
-            .merge(("address", "0.0.0.0"))
-            .merge(("port", 8000))
-            .merge(("log_level", "off"))
-            .merge(("secret_key", std::env::var("SECRET_KEY").expect("SECRET_KEY is not defined.")));
-        let config = Config::from(figment);
-
-        // Launch the web server
-        let _rocket = rocket::custom(&config)
-        .mount("/", routes![index])
-        .launch()
-        .await;
-    }); 
+    tokio::spawn(start_server(Arc::clone(&tasks))); 
 
     // Email settings
     let email_host = std::env::var("EMAIL_HOST").expect("EMAIL_HOST is not defined.");
@@ -33,27 +30,26 @@ async fn main() {
     let email_from = std::env::var("EMAIL_FROM").expect("EMAIL_FROM is not defined.");
     println!("Email host = {:?}, username = {:?}, password = ***, from = {:?}.",email_host, email_username, email_from);
 
-    // Tasks and people
-    let mut tasks = Task::from_vars(prefixed_vars("TASK"));
-    println!("tasks = {:?}", tasks);
-    assert_ne!(tasks.len(), 0, "TASK_0 is not defined.");
-
+    // People list
     let people = Person::from_vars(prefixed_vars("PERSON"));
     println!("people = {:?}", people);
     assert_ne!(people.len(), 0, "PERSON_0 is not defined.");
 
-    assert_eq!(tasks.len(), people.len(), "There must be the same amount of people and tasks.");
+    assert_eq!(tasks.lock().unwrap().len(), people.len(), "There must be the same amount of people and tasks.");
 
     // Main loop
-    let n_rotations = week_number(Local::now()) % tasks.len() as i64;
-    tasks.rotate_left(n_rotations as usize);
+    let n_rotations = week_number(Local::now()) % tasks.lock().unwrap().len() as i64;
+
+    let mut mutable_tasks = tasks.lock().unwrap();
+    mutable_tasks.rotate_left(n_rotations as usize);
+    drop(mutable_tasks);
 
     loop {
         println!("Waiting until next Monday at 08:30.");
         let wait_duration = until_monday_08h30(Local::now());
         std::thread::sleep(wait_duration.to_std().unwrap());
 
-        for (person, task) in people.iter().zip(&tasks) {
+        for (person, task) in people.iter().zip(tasks.lock().unwrap().iter()) {
             println!("Sending email to {} <{}> (task = {:?}).", person.name, person.email_address, task.name);
             let result = send_email(
                 &email_host,
@@ -70,7 +66,9 @@ async fn main() {
             }
         }
 
-        tasks.rotate_left(1);
+        let mut mutable_tasks = tasks.lock().unwrap();
+        mutable_tasks.rotate_left(1);
+        drop(mutable_tasks);
     }
 }
 
@@ -92,21 +90,44 @@ fn generate_email_body(person: &Person, task: &Task) -> String {
     )
 }
 
-// Route to get the tasks of every person (on the web server started in the main function)
-#[get("/")]
-fn index() -> String {
-    // Tasks and people
-    let tasks = Task::from_vars(prefixed_vars("TASK"));
-    assert_ne!(tasks.len(), 0, "TASK_0 is not defined.");
+async fn start_server(tasks: Arc<Mutex<Vec<Task>>>) {
+    // Build our application with a route
+    let app = Router::new()
+    .route("/", get(index))
+    .route("/rotate", get(rotate))
+    .with_state(Arc::clone(&tasks));
 
+    // Run it
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8000));
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
+}
+
+
+// Route to get the tasks of every person (on the web server started in the main function)
+async fn index(State(tasks): State<Arc<Mutex<Vec<Task>>>>) -> String {
+
+    // People list
     let people = Person::from_vars(prefixed_vars("PERSON"));
     assert_ne!(people.len(), 0, "PERSON_0 is not defined.");
 
     // String with tasks and people
     let mut printing = String::new();
-    for (person, task) in people.iter().zip(&tasks) {
+    for (person, task) in people.iter().zip(tasks.lock().unwrap().iter()) {
         printing.push_str(format!("{}: {}\n", person.name, task.name).to_owned().as_str());
     }
+    printing.push_str("\nhttps://taskot.e-kot.be/rotate : pour tourner la roue.");
 
     printing
+}
+
+// Route to rotate the tasks of every person (on the web server started in the main function)
+async fn rotate(State(tasks): State<Arc<Mutex<Vec<Task>>>>) -> Redirect {
+
+    let mut mutate_tasks = tasks.lock().unwrap();
+    mutate_tasks.rotate_left(1);
+    
+    Redirect::to("/")
 }
