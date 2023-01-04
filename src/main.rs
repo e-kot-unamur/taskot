@@ -7,7 +7,7 @@ use std::{
 use tokio;
 use axum::{
     routing::get,
-    response::Redirect,
+    response::{Redirect, Html},
     Router,
     extract::State
 };
@@ -107,20 +107,21 @@ async fn start_server(tasks: Arc<Mutex<Vec<Task>>>) {
 
 
 // Route to get the tasks of every person (on the web server started in the main function)
-async fn index(State(tasks): State<Arc<Mutex<Vec<Task>>>>) -> String {
+async fn index(State(tasks): State<Arc<Mutex<Vec<Task>>>>) -> Html<String> {
 
     // People list
     let people = Person::from_vars(prefixed_vars("PERSON"));
     assert_ne!(people.len(), 0, "PERSON_0 is not defined.");
 
-    // String with tasks and people
+    // String with tasks and people (to be printed on the web page, in HTML)
     let mut printing = String::new();
+    printing.push_str("<h1>Tâches de cette semaine :</h1>\n<ul>\n");
     for (person, task) in people.iter().zip(tasks.lock().unwrap().iter()) {
-        printing.push_str(format!("{}: {}\n", person.name, task.name).to_owned().as_str());
+        printing.push_str(format!("<li>{}: {}</li>\n", person.name, task.name).to_owned().as_str());
     }
-    printing.push_str("\nhttps://taskot.e-kot.be/rotate : pour tourner la roue.");
+    printing.push_str("</ul>\n<br>\n<form action='http://taskot.e-kot.be/rotate'><input type='submit' value='Tourner la roue' /></form>");
 
-    printing
+    Html(printing)
 }
 
 // Route to rotate the tasks of every person (on the web server started in the main function)
