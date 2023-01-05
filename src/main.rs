@@ -115,11 +115,12 @@ async fn index(State(tasks): State<Arc<Mutex<Vec<Task>>>>) -> Html<String> {
 
     // String with tasks and people (to be printed on the web page, in HTML)
     let mut printing = String::new();
-    printing.push_str("<h1>Tâches de cette semaine :</h1>\n<ul>\n");
+    printing.push_str("<!DOCTYPE html>\n<html>\n<head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'></head>\n<body>\n");
+    printing.push_str("<h1 style='text-align: center; color:red;'>Tâches de cette semaine :</h1>\n<ul style='text-align: center;'>\n");
     for (person, task) in people.iter().zip(tasks.lock().unwrap().iter()) {
         printing.push_str(format!("<li>{}: {}</li>\n", person.name, task.name).to_owned().as_str());
     }
-    printing.push_str("</ul>\n<br>\n<form action='https://taskot.e-kot.be/rotate'><input type='submit' value='Tourner la roue' /></form>");
+    printing.push_str("</ul>\n<br>\n<form style='text-align: center;' action='https://taskot.e-kot.be/rotate'><input style='background-color: #04AA6D; color: white; cursor: pointer; border: 2px solid gray; border-radius: 4px;' type='submit' value='Tourner la roue' /></form>\n</body>\n</html>\n");
 
     Html(printing)
 }
