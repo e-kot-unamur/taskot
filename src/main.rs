@@ -20,8 +20,10 @@ async fn main() {
     println!("tasks = {:?}", tasks);
     assert_ne!(tasks.lock().unwrap().len(), 0, "TASK_0 is not defined.");
 
-    // Run web server in a separate async task
-    tokio::spawn(start_server(Arc::clone(&tasks))); 
+    // Run web server in a separate async task, if the environment variable RUN_WEB_SERVER is set to true
+    if std::env::var("RUN_WEB_SERVER").unwrap_or("false".to_string()) == "true" {
+        tokio::spawn(start_server(Arc::clone(&tasks)));
+    }
 
     // Email settings
     let email_host = std::env::var("EMAIL_HOST").expect("EMAIL_HOST is not defined.");
@@ -85,7 +87,7 @@ fn generate_email_body(person: &Person, task: &Task) -> String {
         Cette semaine, ta tâche est \"{}\".\n\
         \n\
         Cordialement,\n\
-        TasKot v0.1.0",
+        TasKot v0.1.1",
         person.name, task.name,
     )
 }
@@ -120,7 +122,7 @@ async fn index(State(tasks): State<Arc<Mutex<Vec<Task>>>>) -> Html<String> {
     for (person, task) in people.iter().zip(tasks.lock().unwrap().iter()) {
         printing.push_str(format!("<li>{}: {}</li>\n", person.name, task.name).to_owned().as_str());
     }
-    printing.push_str("</ul>\n<br>\n<form style='text-align: center;' action='https://taskot.e-kot.be/rotate'><input style='background-color: #04AA6D; color: white; cursor: pointer; border: 2px solid gray; border-radius: 4px;' type='submit' value='Tourner la roue' /></form>\n</body>\n</html>\n");
+    printing.push_str("</ul>\n<br>\n<form style='text-align: center;' action='/rotate'><input style='background-color: #04AA6D; color: white; cursor: pointer; border: 2px solid gray; border-radius: 4px;' type='submit' value='Tourner la roue' /></form>\n</body>\n</html>\n");
 
     Html(printing)
 }

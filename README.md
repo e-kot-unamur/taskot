@@ -32,3 +32,16 @@ cargo run
 ```
 
 Une fois démarré, le programme enverra un e-mail à Alice, Bob et Claire tous les lundis à 08h30 en prenant bien soin de faire une tournante chaque semaine.
+
+## Foncionnalité supplémentaire
+
+Si vous souhaitez en plus lancer une web app qui permet de voir qui doit faire quelle tâche, vous pouvez rajouter cette variable d'environnement avant le `cargo run`:
+
+```sh
+export RUN_WEB_SERVER='true'
+```
+
+Attention, vous devez avoir configuré NGINX (ou un autre serveur web) pour le bon fonctionnement de cette web app.
+Note : La web app est sur le port 8000 par défaut.
+
+Une fois démarrée, vous pourrez y accéder à l'adresse `http://votre-serveur:8000`.
