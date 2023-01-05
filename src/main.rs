@@ -116,7 +116,7 @@ async fn index(State(tasks): State<Arc<Mutex<Vec<Task>>>>) -> Html<String> {
     // String with tasks and people (to be printed on the web page, in HTML)
     let mut printing = String::new();
     printing.push_str("<!DOCTYPE html>\n<html>\n<head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'></head>\n<body>\n");
-    printing.push_str("<h1 style='text-align: center; color:red;'>Tâches de cette semaine :</h1>\n<ul style='text-align: center;'>\n");
+    printing.push_str("<h1 style='text-align: center; color:red;'>Tâches de cette semaine</h1>\n<ul style='text-align: center; display: flex; flex-direction: column; align-items: center;'>\n");
     for (person, task) in people.iter().zip(tasks.lock().unwrap().iter()) {
         printing.push_str(format!("<li>{}: {}</li>\n", person.name, task.name).to_owned().as_str());
     }
