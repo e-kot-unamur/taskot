@@ -5,25 +5,19 @@
 ##
 FROM rust:1.60 as build
 
-RUN cargo new taskot
+RUN mkdir taskot
 WORKDIR /taskot/
 
 # Cache dependencies
-COPY Cargo.lock ./
-COPY Cargo.toml ./
+COPY . .
 RUN cargo build --release
-RUN rm src/*
 
 # Actual build
-COPY src/ ./src/
 RUN rm ./target/release/deps/taskot*
 RUN cargo build --release
 
 ##
 ## Deploy
 ##
-FROM gcr.io/distroless/cc
 
-COPY --from=build /taskot/target/release/taskot ./
-
-ENTRYPOINT ["./taskot"]
+CMD ["cargo","run","--release"]
