@@ -46,4 +46,4 @@ Attention, vous devez avoir configuré NGINX (ou un autre serveur web) pour le b
 
 Note : La web app est sur le port 8000 par défaut.
 
-Une fois démarrée, vous pourrez y accéder à l'adresse `http://votre-serveur`.
+Une fois démarrée, vous pourrez y accéder à l'adresse `https://votre-serveur`.
