@@ -25,7 +25,7 @@ pub async fn index(State(tasks): State<Arc<Mutex<Vec<Task>>>>) -> Html<String> {
         let entry = entry.unwrap();
         println!("{}", entry.path().display());
     }
-    let content = std::fs::read_to_string("./taskot/src/Patterns.toml").unwrap();
+    let content = std::fs::read_to_string("./src/Patterns.toml").unwrap();
     let html_page = from_str::<HtmlPage>(content.as_str()).unwrap();
 
     // Build the HTML page
