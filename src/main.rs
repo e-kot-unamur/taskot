@@ -1,16 +1,22 @@
-use taskot::*;
-use chrono::prelude::*;
 use std::{
     net::SocketAddr,
     sync::{Arc, Mutex}
 };
+use chrono::prelude::*;
 use tokio;
 use axum::{
-    routing::get,
-    response::{Redirect, Html},
-    Router,
-    extract::State
+    routing::{get, post},
+    Router
 };
+
+mod utils;
+use utils::mail::*;
+use utils::models::*;
+use utils::routes::*;
+use utils::utils::*;
+
+#[cfg(test)]
+mod tests;
 
 #[tokio::main]
 async fn main() {
@@ -68,36 +74,21 @@ async fn main() {
             }
         }
 
+        // Rotate tasks on Monday
         let mut mutable_tasks = tasks.lock().unwrap();
         mutable_tasks.rotate_left(1);
         drop(mutable_tasks);
     }
 }
 
-/// Writes the email's subject according to the person and its task.
-fn generate_email_subject(_person: &Person, task: &Task) -> String {
-    format!("Ta tâche de cette semaine ({})", task.name)
-}
-
-/// Writes the email's body according to the person and its task.
-fn generate_email_body(person: &Person, task: &Task) -> String {
-    format!(
-        "Bonjour {},\n\
-        \n\
-        Cette semaine, ta tâche est \"{}\".\n\
-        \n\
-        Cordialement,\n\
-        TasKot v0.1.1",
-        person.name, task.name,
-    )
-}
-
+// Start the web server
 async fn start_server(tasks: Arc<Mutex<Vec<Task>>>) {
     // Build our application with a route
     let app = Router::new()
     .route("/", get(index))
-    .route("/rotate", get(rotate))
-    .with_state(Arc::clone(&tasks));
+    .route("/rotate", post(rotate))
+    .with_state(Arc::clone(&tasks))
+    .fallback(fallback);
 
     // Run it
     let addr = SocketAddr::from(([0, 0, 0, 0], 8000));
@@ -105,33 +96,4 @@ async fn start_server(tasks: Arc<Mutex<Vec<Task>>>) {
         .serve(app.into_make_service())
         .await
         .unwrap();
-}
-
-
-// Route to get the tasks of every person (on the web server started in the main function)
-async fn index(State(tasks): State<Arc<Mutex<Vec<Task>>>>) -> Html<String> {
-
-    // People list
-    let people = Person::from_vars(prefixed_vars("PERSON"));
-    assert_ne!(people.len(), 0, "PERSON_0 is not defined.");
-
-    // String with tasks and people (to be printed on the web page, in HTML)
-    let mut printing = String::new();
-    printing.push_str("<!DOCTYPE html>\n<html>\n<head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'></head>\n<body>\n");
-    printing.push_str("<h1 style='text-align: center; color:red;'>Tâches de cette semaine</h1>\n<ul style='text-align: center; display: flex; flex-direction: column; align-items: center;'>\n");
-    for (person, task) in people.iter().zip(tasks.lock().unwrap().iter()) {
-        printing.push_str(format!("<li>{}: {}</li>\n", person.name, task.name).to_owned().as_str());
-    }
-    printing.push_str("</ul>\n<br>\n<form style='text-align: center;' action='/rotate'><input style='background-color: #04AA6D; color: white; cursor: pointer; border: 2px solid gray; border-radius: 4px;' type='submit' value='Tourner la roue' /></form>\n</body>\n</html>\n");
-
-    Html(printing)
-}
-
-// Route to rotate the tasks of every person (on the web server started in the main function)
-async fn rotate(State(tasks): State<Arc<Mutex<Vec<Task>>>>) -> Redirect {
-
-    let mut mutate_tasks = tasks.lock().unwrap();
-    mutate_tasks.rotate_left(1);
-    
-    Redirect::to("/")
 }

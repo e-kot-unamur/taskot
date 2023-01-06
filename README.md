@@ -35,14 +35,15 @@ Une fois démarré, le programme enverra un e-mail à Alice, Bob et Claire tous 
 
 ## Fonctionnalité supplémentaire
 
-Si vous souhaitez en plus lancer une web app qui permet de voir qui doit faire quelle tâche, vous pouvez rajouter cette variable d'environnement avant le `cargo run` :
+Si vous souhaitez en plus lancer une web app qui permet de voir qui doit faire quelle tâche, vous pouvez rajouter ces variables d'environnement avant le `cargo run` :
 
 ```sh
 export RUN_WEB_SERVER='true'
+export ROTATE_KEY='clesecrete' # Pour éviter que n'importe qui puisse lancer la rotation 
 ```
 
 Attention, vous devez avoir configuré NGINX (ou un autre serveur web) pour le bon fonctionnement de cette web app.
 
 Note : La web app est sur le port 8000 par défaut.
 
-Une fois démarrée, vous pourrez y accéder à l'adresse `http://votre-serveur:8000`.
+Une fois démarrée, vous pourrez y accéder à l'adresse `http://votre-serveur`.
