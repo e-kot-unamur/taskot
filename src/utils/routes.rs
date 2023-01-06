@@ -42,12 +42,12 @@ pub async fn rotate(State(tasks): State<Arc<Mutex<Vec<Task>>>>, RawForm(form): R
     // Get the number of rotations and the key from the form
     let string_received = str::from_utf8(&form).unwrap();
     let split = string_received.split("&").collect::<Vec<&str>>();
-    let n_rotations = split[0].split("=").collect::<Vec<&str>>()[1].parse::<usize>().unwrap();
+    let n_rotations = split[0].split("=").collect::<Vec<&str>>()[1].parse::<usize>().unwrap_or(0);
     let key = split[1].split("=").collect::<Vec<&str>>()[1];
 
     // Rotate the tasks if the key is correct
     let expected_key = std::env::var("ROTATE_KEY").unwrap_or("".to_string());
-    if expected_key != "".to_string() && key == expected_key {
+    if n_rotations != 0 && expected_key != "".to_string() && key == expected_key {
         let mut mutate_tasks = tasks.lock().unwrap();
         mutate_tasks.rotate_left(n_rotations);
     }
