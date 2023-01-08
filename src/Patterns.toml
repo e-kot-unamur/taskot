@@ -29,8 +29,7 @@ form_start="""
 """
 
 form_n_rotations="""
-            <label for='static2' class='form-label'>Nombre de tours </label><br>
-            <input type='number' class='form-control' id='static2' name='n_rotations' value='1' min='1' max='{rotations_max}' step='1' /><br>
+            <input type='number' class='form-control' id='static2' placeholder='Rotations' name='n_rotations' min='1' max='{rotations_max}' step='1' /><br>
         </div>
 """
 
