@@ -1,9 +1,50 @@
-head="<!DOCTYPE html>\n<html>\n<head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'></head>\n"
-title="<body>\n<h1 style='text-align: center; color:red;'>Tâches de cette semaine</h1>\n<ul style='text-align: center; display: flex; flex-direction: column; align-items: center;'>\n"
+head="""
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Taskot</title>
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css' integrity='sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T' crossorigin='anonymous'>
+    <link rel='icon' type='image/x-icon' href='https://img.icons8.com/windows/512/housekeeper-female.png'>
+    <meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'></head>
+"""
 
-ul_content="<li>{person}: {task}</li>\n"
+title="""
+<body>
+    <nav class='navbar navbar-light bg-light'><span class='navbar-brand mb-0 h1 justify-content-center text-center m-auto'>Taskot</span></nav>
+    <div style='margin-top:50px'>
+        <ul class='list-group justify-content-center text-center m-auto w-50'>
+            <li class='list-group-item active'>Liste des tâches</li>
+"""
 
-form_start="</ul><br>\n<form action='/rotate' method='POST' style='text-align: center;'>\n"
-form_n_rotations="<label>Nombre de tours :</label><br>\n<input type='number' name='n_rotations' value='1' min='1' max='{rotations_max}' step='1' /><br>\n"
-form_key="<label>Clé :</label><br>\n<input type='password' name='key' /><br><br>\n"
-form_submit="<input style='background-color: #04AA6D; color: white; cursor: pointer; border: 2px solid gray; border-radius: 4px;' type='submit' value='Tourner la roue' />\n</form>\n</body>\n</html>"
+ul_content="""
+            <li class='list-group-item'>{person}: {task}</li>
+"""
+
+form_start="""
+        </ul>
+    </div>
+    <div style='margin-top:50px;'>
+        <form class='form-inline justify-content-center text-center m-auto' action='/rotate' method='POST'>
+        <div class='form-group mb-2'>
+"""
+
+form_n_rotations="""
+            <label for='static2' class='form-label'>Nombre de tours </label><br>
+            <input type='number' class='form-control' id='static2' name='n_rotations' value='1' min='1' max='{rotations_max}' step='1' /><br>
+        </div>
+"""
+
+form_key="""
+        <div class='form-group mx-sm-3 mb-2'>
+            <label for='inputKey' class='sr-only'>Clé :</label><br>
+            <input class='form-control' id='inputKey' placeholder='Password' type='password' name='key' /><br><br>
+        </div>
+"""
+
+form_submit="""
+        <button type='submit' class='btn btn-primary mb-2'> Tourner la roue </button>
+        </form>
+    </div>
+</body>
+</html>
+"""
