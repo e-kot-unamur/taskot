@@ -5,15 +5,22 @@
 ##
 FROM rust:1.60 as build
 
-RUN mkdir taskot
+RUN cargo new taskot
 WORKDIR /taskot/
 
-# BUILD
-COPY . .
+# Cache dependencies
+COPY Cargo.lock ./
+COPY Cargo.toml ./
+RUN cargo build --release
+RUN rm src/*
+
+# Actual build
+COPY src/ ./src/
+RUN rm ./target/release/deps/taskot*
 RUN cargo build --release
 
 ##
 ## Deploy
 ##
 
-CMD ["cargo","run","--release"]
+CMD ["target/release/taskot"]
