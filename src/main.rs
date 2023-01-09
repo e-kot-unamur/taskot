@@ -57,6 +57,12 @@ async fn main() {
         let wait_duration = until_monday_08h30(Local::now());
         std::thread::sleep(wait_duration.to_std().unwrap());
 
+        // Rotate tasks on Monday
+        let mut mutable_tasks = tasks.lock().unwrap();
+        mutable_tasks.rotate_left(1);
+        drop(mutable_tasks);
+
+        // Send emails
         for (person, task) in people.iter().zip(tasks.lock().unwrap().iter()) {
             println!("Sending email to {} <{}> (task = {:?}).", person.name, person.email_address, task.name);
             let result = send_email(
@@ -73,11 +79,6 @@ async fn main() {
                 eprintln!("Failed: {}.", e);
             }
         }
-
-        // Rotate tasks on Monday
-        let mut mutable_tasks = tasks.lock().unwrap();
-        mutable_tasks.rotate_left(1);
-        drop(mutable_tasks);
     }
 }
 
