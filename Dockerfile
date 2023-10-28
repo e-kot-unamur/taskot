@@ -3,7 +3,7 @@
 ##
 ## Build
 ##
-FROM rust:latest as build
+FROM rust:1.60 as build
 
 RUN cargo new taskot
 WORKDIR /taskot/
