@@ -19,6 +19,9 @@ COPY src/ ./src/
 RUN rm ./target/release/deps/taskot*
 RUN cargo build --release
 
+# Create dir for persisting data
+RUN mkdir /persistent
+
 ##
 ## Deploy
 ##

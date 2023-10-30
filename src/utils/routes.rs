@@ -50,6 +50,7 @@ pub async fn rotate(State(tasks): State<Arc<Mutex<Vec<Task>>>>, RawForm(form): R
     if n_rotations != 0 && expected_key != "".to_string() && key == expected_key {
         let mut mutate_tasks = tasks.lock().unwrap();
         mutate_tasks.rotate_left(n_rotations);
+        Task::save_tasks(mutate_tasks.clone());
     }
     
     Redirect::to("/")

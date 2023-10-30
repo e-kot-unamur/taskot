@@ -22,7 +22,7 @@ mod tests;
 async fn main() {
 
     // Create a new task list, shared between all threads
-    let tasks = Arc::new(Mutex::new(Task::from_vars(prefixed_vars("TASK"))));
+    let tasks = Arc::new(Mutex::new(Task::get()));
     println!("tasks = {:?}", tasks);
     assert_ne!(tasks.lock().unwrap().len(), 0, "TASK_0 is not defined.");
 
@@ -46,12 +46,6 @@ async fn main() {
     assert_eq!(tasks.lock().unwrap().len(), people.len(), "There must be the same amount of people and tasks.");
 
     // Main loop
-    let n_rotations = week_number(Local::now()) % tasks.lock().unwrap().len() as i64;
-
-    let mut mutable_tasks = tasks.lock().unwrap();
-    mutable_tasks.rotate_left(n_rotations as usize);
-    drop(mutable_tasks);
-
     loop {
         println!("Waiting until next Monday at 08:30.");
         let wait_duration = until_monday_08h30(Local::now());
@@ -61,6 +55,7 @@ async fn main() {
         let mut mutable_tasks = tasks.lock().unwrap();
         mutable_tasks.rotate_left(1);
         drop(mutable_tasks);
+        Task::save_tasks(tasks.lock().unwrap().clone());
 
         // Send emails
         for (person, task) in people.iter().zip(tasks.lock().unwrap().iter()) {
