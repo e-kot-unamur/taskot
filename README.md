@@ -12,7 +12,7 @@ TasKot est une application qui, tous les lundis à 08h30, envoie à tous les mem
 
 L'application nécessite des variables d'environnement pour configurer l'envoi d'e-mail, et définir les tâches à réaliser ainsi que les membres de la colocation.
 
-Prenons un exemple : Alice, Bob et Claire vivent à trois. Ils définissent trois tâches à accomplir chaque semaine : la vaisselle, la lessive et le nettoyage du sol.
+Prenons un exemple : Alice, Bob et Claire vivent à trois. Ils définissent trois tâches à accomplir chaque semaine : la vaisselle, la lessive et le nettoyage du sol .
 
 ```sh
 export EMAIL_HOST='smtp.gmail.com'
